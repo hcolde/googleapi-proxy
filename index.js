@@ -40,6 +40,7 @@ app.use('/*', createProxyMiddleware({
     xfwd: false,
     secure: true,
     router: (req) => {
+        console.warn(`url: ${req.url}`);
         const url = new URL(req.url);
 
         url.protocol = 'https:'; // 确保目标协议为 https
