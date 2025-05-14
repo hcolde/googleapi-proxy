@@ -60,9 +60,10 @@ app.use('/*', createProxyMiddleware({
             }
         }
 
-        console.log(`Incoming host: ${requestHostname}, Routing to target: https://${finalTargetHostname}`);
-
         return `https://${finalTargetHostname}`;
+    },
+    pathRewrite: (path, req) => {
+        return path;
     },
     on: {
         proxyReq: (proxyReq, req, res) => {
