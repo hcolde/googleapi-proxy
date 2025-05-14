@@ -53,12 +53,14 @@ app.use('/*', createProxyMiddleware({
             const parts = requestHostname.split('.');
             if (parts.length > 2) {
                 // 例如: 'sub1.sub2.proxy.com' -> 'sub1.sub2.googleapis.com'
-                finalTargetHostname = parts.slice(0, parts.length - 2).join('.') + '.googleapis.com';
+                finalTargetHostname = parts.slice(0, parts.length - 2).join('.') + `.${TARGET_HOSTNAME}`;
             } else {
                 // 例如: 'proxy.com' 或 'localhost' -> 'googleapis.com'
                 finalTargetHostname = TARGET_HOSTNAME;
             }
         }
+
+        console.log(`Incoming host: ${requestHostname}, Routing to target: https://${finalTargetHostname}`);
 
         return `https://${finalTargetHostname}`;
     },
