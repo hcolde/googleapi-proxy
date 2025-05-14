@@ -40,23 +40,11 @@ app.use('/*', createProxyMiddleware({
     xfwd: false,
     secure: true,
     router: (req) => {
-        console.warn(`url: ${req.url}`);
-        const url = new URL(req.url);
+        const parts = req.hostname.split('.');
 
-        url.protocol = 'https:'; // 确保目标协议为 https
+        const hostname = parts.length > 2 ? parts.slice(0, parts.length - 2).join('.') + '.googleapis.com' : 'googleapis.com';
 
-        const originalHostname = url.hostname;
-        const parts = originalHostname.split('.');
-
-        if (parts.length > 2) {
-            // 如果原始主机名是 sub.domain.tld 格式, 新主机名将是 sub.googleapis.com
-            url.hostname = parts.slice(0, parts.length - 2).join('.') + '.googleapis.com';
-        } else {
-            // 如果原始主机名是 domain.tld 或单个词 (例如 localhost), 新主机名将是 googleapis.com
-            url.hostname = 'googleapis.com';
-        }
-
-        return url.toString();
+        return `https://${hostname}`;
     },
     on: {
         proxyReq: (proxyReq, req, res) => {
