@@ -36,7 +36,7 @@ const removeHeaders = [
     'X-Proxy-Authorization',
 ]
 
-app.use('/*', createProxyMiddleware({
+app.use('*', createProxyMiddleware({
     target: 'https://googleapis.com',
     changeOrigin: true,
     xfwd: false,
