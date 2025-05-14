@@ -60,6 +60,8 @@ app.use('/*', createProxyMiddleware({
             }
         }
 
+        console.warn(`${requestHostname} -> ${finalTargetHostname}`);
+
         return `https://${finalTargetHostname}`;
     },
     pathRewrite: (path, req) => {
