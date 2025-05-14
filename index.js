@@ -4,6 +4,8 @@ const net = require('net');
 
 const app = express();
 
+const TARGET_HOSTNAME = 'googleapis.com';
+
 // 添加前置中间件来清理请求
 app.use((req, res, next) => {
     // 清除所有可能暴露IP的头部
@@ -40,11 +42,25 @@ app.use('/*', createProxyMiddleware({
     xfwd: false,
     secure: true,
     router: (req) => {
-        const parts = req.hostname.split('.');
+        const requestHostname = req.hostname;
+        let finalTargetHostname;
 
-        const hostname = parts.length > 2 ? parts.slice(0, parts.length - 2).join('.') + '.googleapis.com' : 'googleapis.com';
+        if (net.isIP(requestHostname) !== 0) {
+            // 如果是 IP 地址, 直接路由到目标域名
+            finalTargetHostname = TARGET_HOSTNAME;
+        } else {
+            // 如果是主机名 (例如 localhost, sub.domain.com)
+            const parts = requestHostname.split('.');
+            if (parts.length > 2) {
+                // 例如: 'sub1.sub2.proxy.com' -> 'sub1.sub2.googleapis.com'
+                finalTargetHostname = parts.slice(0, parts.length - 2).join('.') + '.googleapis.com';
+            } else {
+                // 例如: 'proxy.com' 或 'localhost' -> 'googleapis.com'
+                finalTargetHostname = TARGET_HOSTNAME;
+            }
+        }
 
-        return `https://${hostname}`;
+        return `https://${finalTargetHostname}`;
     },
     on: {
         proxyReq: (proxyReq, req, res) => {
